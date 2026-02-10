@@ -1,3 +1,4 @@
 streamlite
 numpy
-scikit-lear
+scikit-learn
+
