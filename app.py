@@ -1,7 +1,12 @@
-# Import libraries
+
 import numpy as np
+import streamlit as st
 import matplotlib.pyplot as plt
 from sklearn.neighbors import KNeighborsClassifier
+
+# App title
+st.title(" KNN Weather Classification")
+st.write("Predict weather using Temperature and Humidity")
 
 # Dataset: [Temperature, Humidity]
 X = np.array([
@@ -16,51 +21,61 @@ X = np.array([
 # Labels: 0 = Sunny, 1 = Rainy
 y = np.array([0, 1, 0, 0, 1, 1])
 
-# New weather data
-new_weather = np.array([[26, 78]])
+label_map = {0: "Sunny", 1: "Rainy"}
 
-# Create KNN classifier
+# User input
+st.sidebar.header("Enter Weather Details")
+temp = st.sidebar.slider("Temperature (°C)", 15, 60, 26)
+humidity = st.sidebar.slider("Humidity (%)", 50, 100, 78)
+
+new_weather = np.array([[temp, humidity]])
+
+# Create and train KNN model
 knn = KNeighborsClassifier(n_neighbors=3)
 knn.fit(X, y)
 
-# Predict weather
+# Prediction
 pred = knn.predict(new_weather)[0]
 
-# Label mapping
-label_map = {0: "Sunny", 1: "Rainy"}
+st.subheader(f" Predicted Weather: **{label_map[pred]}**")
 
-# Plot Sunny points
-plt.scatter(
+# Plot graph
+fig, ax = plt.subplots()
+
+# Sunny points
+ax.scatter(
     X[y == 0, 0], X[y == 0, 1],
     color='orange', label='Sunny', s=100, edgecolor='k'
 )
 
-# Plot Rainy points
-plt.scatter(
+# Rainy points
+ax.scatter(
     X[y == 1, 0], X[y == 1, 1],
     color='blue', label='Rainy', s=100, edgecolor='k'
 )
 
-# Plot new weather point
+# New weather point
 colors = ['orange', 'blue']
-plt.scatter(
-    new_weather[0, 0], new_weather[0, 1],
+ax.scatter(
+    temp, humidity,
     color=colors[pred], marker='*',
     s=300, edgecolor='black',
     label=f'New Day: {label_map[pred]}'
 )
 
-# Add prediction text
-plt.text(
-    new_weather[0, 0] + 0.5, new_weather[0, 1],
+# Prediction text
+ax.text(
+    temp + 0.5, humidity,
     f'Predicted: {label_map[pred]}',
     fontsize=12, color=colors[pred]
 )
 
-# Labels and title
-plt.xlabel('Temperature')
-plt.ylabel('Humidity')
-plt.title('KNN Weather Classification')
-plt.legend()
-plt.grid(True)
-plt.show()
+# Labels
+ax.set_xlabel("Temperature")
+ax.set_ylabel("Humidity")
+ax.set_title("KNN Weather Classification")
+ax.legend()
+ax.grid(True)
+
+# Display plot
+st.pyplot(fig)
